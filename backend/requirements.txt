@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+yfinance
+pandas
+pydantic
+pydantic-settings
+python-dotenv
+groq
+pymongo
