@@ -1,4 +1,5 @@
 import os
+import certifi
 from pymongo import MongoClient
 import logging
 
@@ -15,7 +16,7 @@ class MongoDBService:
 
     def _initialize(self):
         uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
-        self.client = MongoClient(uri)
+        self.client = MongoClient(uri, tlsCAFile=certifi.where())
         self.db = self.client.investment_committee
 
         # Collections
