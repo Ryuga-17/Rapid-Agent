@@ -8,3 +8,4 @@ python-dotenv
 groq
 pymongo
 certifi
+sse-starlette==2.0.0

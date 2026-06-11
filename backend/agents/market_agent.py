@@ -1,10 +1,12 @@
 from backend.services.market_service import MarketService
 from backend.models.schemas import MarketData
+from backend.events import track_execution
 
 class MarketAgent:
     def __init__(self):
         self.market_service = MarketService()
 
+    @track_execution("Market Data Collection")
     def gather_data(self, ticker: str) -> dict:
         """
         Orchestrates the retrieval of market data.

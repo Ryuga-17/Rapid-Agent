@@ -1,6 +1,7 @@
 from typing import List
 from backend.models.schemas import Holding, PortfolioAnalysis, PortfolioSummary
 from backend.agents.market_agent import MarketAgent
+from backend.events import track_execution
 import logging
 
 logger = logging.getLogger(__name__)
@@ -9,6 +10,7 @@ class PortfolioAgent:
     def __init__(self):
         self.market_agent = MarketAgent()
 
+    @track_execution("Portfolio Risk Assessment")
     def analyze(self, portfolio: List[Holding]) -> PortfolioAnalysis:
         """
         Analyzes a portfolio of holdings.

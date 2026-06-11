@@ -2,6 +2,7 @@ import os
 import json
 from groq import Groq
 from backend.models.schemas import MarketData, MacroData, Recommendation, PortfolioAnalysis, RegimeData, PortfolioRecommendation
+from backend.events import track_execution
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,6 +12,7 @@ class CommitteeAgent:
         # The Groq client will automatically pick up the GROQ_API_KEY environment variable.
         self.client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
+    @track_execution("Committee Analysis (LLM)")
     def analyze(self, ticker: str, company_name: str, market_data: MarketData, macro_data: MacroData) -> Recommendation:
         """
         Uses the Groq API to generate an investment recommendation based on market and macro data.
@@ -74,6 +76,7 @@ class CommitteeAgent:
                 key_risks=["API Error"]
             )
 
+    @track_execution("Committee Analysis (LLM)")
     def analyze_portfolio(self, portfolio_analysis: PortfolioAnalysis, macro_data: MacroData, regime_data: RegimeData) -> PortfolioRecommendation:
         """
         Uses the Groq API to generate an investment recommendation for a portfolio.

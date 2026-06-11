@@ -23,11 +23,27 @@ class Recommendation(BaseModel):
     bear_case: str
     key_risks: List[str]
 
+class HistoricalContext(BaseModel):
+    previous_rating: Optional[str] = None
+    current_rating: Optional[str] = None
+    confidence_change: Optional[int] = None
+    regime_changed: Optional[bool] = None
+    new_risks: Optional[List[str]] = None
+
+class RecommendationChangeResponse(BaseModel):
+    ticker: str
+    timestamp: str
+    previous_rating: Optional[str] = None
+    current_rating: Optional[str] = None
+    confidence_change: Optional[int] = None
+    regime_changed: Optional[bool] = None
+
 class AnalysisResponse(BaseModel):
     company: str
     market_data: MarketData
     macro_data: MacroData
     recommendation: Recommendation
+    historical_context: Optional[HistoricalContext] = None
 
 # --- Phase 1: Portfolio Agent Models ---
 
@@ -67,6 +83,7 @@ class PortfolioAnalysisResponse(BaseModel):
     portfolio_analysis: PortfolioAnalysis
     regime: RegimeData
     committee_recommendation: PortfolioRecommendation
+    historical_context: Optional[HistoricalContext] = None
 
 # --- Phase 5 & 6: History and Comparison Models ---
 from typing import Any
@@ -77,6 +94,7 @@ class ComparisonResult(BaseModel):
     current_rating: Optional[str] = None
     confidence_change: Optional[int] = None
     regime_changed: bool
+    new_risks: Optional[List[str]] = None
 
 class HistoryStockResponse(BaseModel):
     ticker: str

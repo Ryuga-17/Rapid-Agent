@@ -1,10 +1,12 @@
 from backend.services.macro_service import MacroService
 from backend.models.schemas import MacroData
+from backend.events import track_execution
 
 class MacroAgent:
     def __init__(self):
         self.macro_service = MacroService()
 
+    @track_execution("Macro Analysis")
     def gather_data(self) -> MacroData:
         """
         Orchestrates the retrieval of macroeconomic data.

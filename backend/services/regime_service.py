@@ -1,6 +1,8 @@
 from backend.models.schemas import RegimeData
+from backend.events import track_execution
 
 class RegimeService:
+    @track_execution("Regime Detection")
     def detect_regime(self, inflation: float, interest_rate: float, gdp_growth: float) -> RegimeData:
         """
         Determines the current market regime based on macroeconomic inputs.

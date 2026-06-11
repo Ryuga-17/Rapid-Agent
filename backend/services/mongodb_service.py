@@ -2,6 +2,7 @@ import os
 import certifi
 from pymongo import MongoClient
 import logging
+from backend.events import track_execution
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,8 @@ class MongoDBService:
         self.portfolio_analyses = self.db.portfolio_analyses
         self.macro_snapshots = self.db.macro_snapshots
         self.committee_reports = self.db.committee_reports
+        self.recommendation_changes = self.db.recommendation_changes
+        self.execution_traces = self.db.execution_traces
 
         # Create Indexes
         self._create_indexes()
@@ -33,12 +36,16 @@ class MongoDBService:
             self.stock_analyses.create_index([("ticker", 1)])
             self.stock_analyses.create_index([("timestamp", -1)])
             self.portfolio_analyses.create_index([("timestamp", -1)])
+            self.recommendation_changes.create_index([("ticker", 1)])
+            self.recommendation_changes.create_index([("timestamp", -1)])
+            self.execution_traces.create_index([("trace_id", 1)])
             logger.info("MongoDB indexes verified/created.")
         except Exception as e:
             logger.error(f"Error creating MongoDB indexes: {e}")
 
     # --- Stock Analysis Methods ---
 
+    @track_execution("MongoDB Persistence")
     def save_stock_analysis(self, analysis_doc: dict):
         self.stock_analyses.insert_one(analysis_doc)
 
@@ -57,6 +64,7 @@ class MongoDBService:
 
     # --- Portfolio Analysis Methods ---
 
+    @track_execution("MongoDB Persistence")
     def save_portfolio_analysis(self, analysis_doc: dict):
         self.portfolio_analyses.insert_one(analysis_doc)
 
@@ -66,3 +74,22 @@ class MongoDBService:
 
     def get_latest_portfolio_analysis(self):
         return self.portfolio_analyses.find_one({}, {"_id": 0}, sort=[("timestamp", -1)])
+
+    # --- Recommendation Changes Methods ---
+
+    @track_execution("Audit Logging")
+    def save_recommendation_change(self, change_doc: dict):
+        self.recommendation_changes.insert_one(change_doc)
+
+    def get_recommendation_changes(self, ticker: str, limit: int = 10):
+        cursor = self.recommendation_changes.find({"ticker": ticker}, {"_id": 0}).sort("timestamp", -1).limit(limit)
+        return list(cursor)
+
+    # --- Execution Traces Methods ---
+
+    def save_execution_trace(self, trace_id: str, events: list):
+        self.execution_traces.insert_one({"trace_id": trace_id, "events": events})
+
+    def get_execution_traces(self):
+        cursor = self.execution_traces.find({}, {"_id": 0}).sort("_id", -1)
+        return list(cursor)

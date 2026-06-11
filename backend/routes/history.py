@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 from backend.services.mongodb_service import MongoDBService
-from backend.models.schemas import HistoryStockResponse, HistoryPortfolioResponse
+from backend.models.schemas import HistoryStockResponse, HistoryPortfolioResponse, RecommendationChangeResponse
 
 router = APIRouter(
     prefix="/history",
@@ -29,6 +29,12 @@ async def get_latest_stock(ticker: str):
     if not doc:
         raise HTTPException(status_code=404, detail="No history found for this ticker.")
     return doc
+
+@router.get("/stocks/{ticker}/changes", response_model=List[RecommendationChangeResponse])
+async def get_stock_changes(ticker: str):
+    """Returns recommendation changes for a specific ticker."""
+    docs = db_service.get_recommendation_changes(ticker)
+    return docs
 
 @router.get("/portfolios", response_model=List[HistoryPortfolioResponse])
 async def get_portfolios_history():
